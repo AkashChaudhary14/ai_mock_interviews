@@ -23,8 +23,9 @@
 2. ⚙️ [Tech Stack](#tech-stack)
 3. 🔋 [Features](#features)
 4. 🤸 [Quick Start](#quick-start)
-5. 🕸️ [Snippets (Code to Copy)](#snippets)
-6. 🔗 [Assets](#links)
+5. 🔐 [Environment Variables](#environment-variables-reference)
+6. 🕸️ [Snippets (Code to Copy)](#snippets)
+7. 🔗 [Assets](#links)
 
 
 ## <a name="introduction">🤖 Introduction</a>
@@ -84,29 +85,64 @@ npm install
 
 **Set Up Environment Variables**
 
-Create a new file named `.env.local` in the root of your project and add the following content:
+Copy the example file and fill in your credentials:
 
-```env
-NEXT_PUBLIC_VAPI_WEB_TOKEN=
-NEXT_PUBLIC_VAPI_WORKFLOW_ID=
-
-GOOGLE_GENERATIVE_AI_API_KEY=
-
-NEXT_PUBLIC_BASE_URL=
-
-NEXT_PUBLIC_FIREBASE_API_KEY=
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=
-NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=
-NEXT_PUBLIC_FIREBASE_APP_ID=
-
-FIREBASE_PROJECT_ID=
-FIREBASE_CLIENT_EMAIL=
-FIREBASE_PRIVATE_KEY=
+```bash
+cp .env.example .env.local
 ```
 
-Replace the placeholder values with your actual **[Firebase](https://firebase.google.com/)**, **[Vapi](https://vapi.ai/?utm_source=youtube&utm_medium=video&utm_campaign=jsmastery_recruitingpractice&utm_content=paid_partner&utm_term=recruitingpractice)** credentials.
+Or create `.env.local` manually in the project root with the variables below.
+
+### Environment variables reference
+
+| Variable | Required | Description |
+| --- | --- | --- |
+| `NEXT_PUBLIC_VAPI_WEB_TOKEN` | Yes | Public API key for the Vapi Web SDK (client-side voice calls) |
+| `NEXT_PUBLIC_VAPI_WORKFLOW_ID` | Yes | Vapi workflow ID used to generate new interviews |
+| `GOOGLE_GENERATIVE_AI_API_KEY` | Yes | Google Gemini API key for AI question generation and interview feedback |
+| `NEXT_PUBLIC_BASE_URL` | Yes | App base URL (e.g. `http://localhost:3000` locally, your production URL in prod) |
+| `NEXT_PUBLIC_FIREBASE_API_KEY` | Yes | Firebase web app API key |
+| `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN` | Yes | Firebase auth domain (`your-project.firebaseapp.com`) |
+| `NEXT_PUBLIC_FIREBASE_PROJECT_ID` | Yes | Firebase project ID (client SDK) |
+| `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET` | Yes | Firebase storage bucket (`your-project.appspot.com`) |
+| `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID` | Yes | Firebase Cloud Messaging sender ID |
+| `NEXT_PUBLIC_FIREBASE_APP_ID` | Yes | Firebase web app ID |
+| `NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID` | No | Firebase Analytics measurement ID (optional) |
+| `FIREBASE_PROJECT_ID` | Yes | Firebase project ID (Admin SDK / server-side) |
+| `FIREBASE_CLIENT_EMAIL` | Yes | Firebase service account client email |
+| `FIREBASE_PRIVATE_KEY` | Yes | Firebase service account private key (keep the `\\n` newlines in quotes) |
+
+### `.env.local` example
+
+```env
+# Vapi (https://vapi.ai)
+NEXT_PUBLIC_VAPI_WEB_TOKEN=your_vapi_public_token
+NEXT_PUBLIC_VAPI_WORKFLOW_ID=your_vapi_workflow_id
+
+# Google Gemini (https://aistudio.google.com/apikey)
+GOOGLE_GENERATIVE_AI_API_KEY=your_google_generative_ai_api_key
+
+# App URL
+NEXT_PUBLIC_BASE_URL=http://localhost:3000
+
+# Firebase Client SDK (Project Settings → General → Your apps)
+NEXT_PUBLIC_FIREBASE_API_KEY=your_firebase_api_key
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=your-project-id
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your-project.appspot.com
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=123456789012
+NEXT_PUBLIC_FIREBASE_APP_ID=1:123456789012:web:abcdef123456
+NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=G-XXXXXXXXXX
+
+# Firebase Admin SDK (Project Settings → Service accounts → Generate new private key)
+FIREBASE_PROJECT_ID=your-project-id
+FIREBASE_CLIENT_EMAIL=firebase-adminsdk-xxxxx@your-project.iam.gserviceaccount.com
+FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nMIIE...\n-----END PRIVATE KEY-----\n"
+```
+
+Replace placeholder values with your actual **[Firebase](https://firebase.google.com/)**, **[Vapi](https://vapi.ai/)**, and **[Google AI Studio](https://aistudio.google.com/apikey)** credentials.
+
+> **Note:** Never commit `.env.local` to git. Use `.env.example` as a template only.
 
 **Running the Project**
 
