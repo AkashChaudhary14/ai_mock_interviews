@@ -2,10 +2,30 @@ import { generateText } from "ai";
 import { google } from "@ai-sdk/google";
 
 import { db } from "@/firebase/admin";
+import { getCurrentUser } from "@/lib/actions/auth.action";
 import { getRandomInterviewCover } from "@/lib/utils";
 
+function parseQuestions(text: string): string[] {
+  const jsonMatch = text.match(/\[[\s\S]*\]/);
+  if (!jsonMatch) {
+    throw new Error("AI response did not contain a valid JSON array");
+  }
+
+  const parsed = JSON.parse(jsonMatch[0]);
+  if (!Array.isArray(parsed) || parsed.length === 0) {
+    throw new Error("AI response did not return a non-empty question array");
+  }
+
+  return parsed.map(String);
+}
+
 export async function POST(request: Request) {
-  const { type, role, level, techstack, amount, userid } = await request.json();
+  const user = await getCurrentUser();
+  if (!user) {
+    return Response.json({ success: false, error: "Unauthorized" }, { status: 401 });
+  }
+
+  const { type, role, level, techstack, amount } = await request.json();
 
   try {
     const { text: questions } = await generateText({
@@ -29,9 +49,9 @@ export async function POST(request: Request) {
       role: role,
       type: type,
       level: level,
-      techstack: techstack.split(","),
-      questions: JSON.parse(questions),
-      userId: userid,
+      techstack: techstack.split(",").map((item: string) => item.trim()),
+      questions: parseQuestions(questions),
+      userId: user.id,
       finalized: true,
       coverImage: getRandomInterviewCover(),
       createdAt: new Date().toISOString(),
@@ -42,7 +62,9 @@ export async function POST(request: Request) {
     return Response.json({ success: true }, { status: 200 });
   } catch (error) {
     console.error("Error:", error);
-    return Response.json({ success: false, error: error }, { status: 500 });
+    const message =
+      error instanceof Error ? error.message : "Failed to generate interview";
+    return Response.json({ success: false, error: message }, { status: 500 });
   }
 }
 

@@ -15,6 +15,7 @@ const InterviewCard = async ({
   type,
   techstack,
   createdAt,
+  coverImage,
 }: InterviewCardProps) => {
   const feedback =
     userId && interviewId
@@ -53,7 +54,7 @@ const InterviewCard = async ({
 
           {/* Cover Image */}
           <Image
-            src={getRandomInterviewCover()}
+            src={coverImage ?? getRandomInterviewCover()}
             alt="cover-image"
             width={90}
             height={90}

@@ -10,7 +10,7 @@ const techIconBaseURL = "https://cdn.jsdelivr.net/gh/devicons/devicon/icons";
 
 const normalizeTechName = (tech: string) => {
   const key = tech.toLowerCase().replace(/\.js$/, "").replace(/\s+/g, "");
-  return mappings[key as keyof typeof mappings];
+  return mappings[key as keyof typeof mappings] ?? null;
 };
 
 const checkIconExists = async (url: string) => {
@@ -25,6 +25,10 @@ const checkIconExists = async (url: string) => {
 export const getTechLogos = async (techArray: string[]) => {
   const logoURLs = techArray.map((tech) => {
     const normalized = normalizeTechName(tech);
+    if (!normalized) {
+      return { tech, url: "/tech.svg" as string | null };
+    }
+
     return {
       tech,
       url: `${techIconBaseURL}/${normalized}/${normalized}-original.svg`,
@@ -32,10 +36,16 @@ export const getTechLogos = async (techArray: string[]) => {
   });
 
   const results = await Promise.all(
-    logoURLs.map(async ({ tech, url }) => ({
-      tech,
-      url: (await checkIconExists(url)) ? url : "/tech.svg",
-    }))
+    logoURLs.map(async ({ tech, url }) => {
+      if (!url || url === "/tech.svg") {
+        return { tech, url: "/tech.svg" };
+      }
+
+      return {
+        tech,
+        url: (await checkIconExists(url)) ? url : "/tech.svg",
+      };
+    })
   );
 
   return results;

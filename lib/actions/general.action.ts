@@ -27,12 +27,12 @@ export async function createFeedback(params: CreateFeedbackParams) {
         Transcript:
         ${formattedTranscript}
 
-        Please score the candidate from 0 to 100 in the following areas. Do not add categories other than the ones provided:
+        Please score the candidate from 0 to 100 in the following areas. Use these exact category names:
         - **Communication Skills**: Clarity, articulation, structured responses.
         - **Technical Knowledge**: Understanding of key concepts for the role.
-        - **Problem-Solving**: Ability to analyze problems and propose solutions.
-        - **Cultural & Role Fit**: Alignment with company values and job role.
-        - **Confidence & Clarity**: Confidence in responses, engagement, and clarity.
+        - **Problem Solving**: Ability to analyze problems and propose solutions.
+        - **Cultural Fit**: Alignment with company values and job role.
+        - **Confidence and Clarity**: Confidence in responses, engagement, and clarity.
         `,
       system:
         "You are a professional interviewer analyzing a mock interview. Your task is to evaluate the candidate based on structured categories",
@@ -69,7 +69,9 @@ export async function createFeedback(params: CreateFeedbackParams) {
 export async function getInterviewById(id: string): Promise<Interview | null> {
   const interview = await db.collection("interviews").doc(id).get();
 
-  return interview.data() as Interview | null;
+  if (!interview.exists) return null;
+
+  return { id: interview.id, ...interview.data() } as Interview;
 }
 
 export async function getFeedbackByInterviewId(
@@ -81,6 +83,7 @@ export async function getFeedbackByInterviewId(
     .collection("feedback")
     .where("interviewId", "==", interviewId)
     .where("userId", "==", userId)
+    .orderBy("createdAt", "desc")
     .limit(1)
     .get();
 
@@ -95,18 +98,20 @@ export async function getLatestInterviews(
 ): Promise<Interview[] | null> {
   const { userId, limit = 20 } = params;
 
-  const interviews = await db
+  const snapshot = await db
     .collection("interviews")
-    .orderBy("createdAt", "desc")
     .where("finalized", "==", true)
-    .where("userId", "!=", userId)
-    .limit(limit)
+    .orderBy("createdAt", "desc")
+    .limit(limit * 3)
     .get();
 
-  return interviews.docs.map((doc) => ({
-    id: doc.id,
-    ...doc.data(),
-  })) as Interview[];
+  return snapshot.docs
+    .filter((doc) => doc.data().userId !== userId)
+    .slice(0, limit)
+    .map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    })) as Interview[];
 }
 
 export async function getInterviewsByUserId(
